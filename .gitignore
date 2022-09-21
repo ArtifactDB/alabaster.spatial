@@ -1,0 +1,4 @@
+*.html
+*.rds
+*.swp
+inst/schemas/source

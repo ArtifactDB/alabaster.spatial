@@ -1,0 +1,31 @@
+Package: alabaster.spatial
+Title: Save and Load Spatial 'Omics Data to/from File
+Description: 
+    Save SpatialExperiment objects and their images into file artifacts, and load them back into memory.
+    This is a more portable alternative to serialization of such objects into RDS files.
+    Each artifact is associated with metadata for further interpretation;
+    downstream applications can enrich this metadata with context-specific properties.
+Version: 0.98.0
+Date: 2022-09-18
+License: MIT + file LICENSE
+Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com")
+Depends:
+    SpatialExperiment,
+    alabaster.base
+Imports:
+    methods,
+    utils,
+    grDevices,
+    S4Vectors,
+    SummarizedExperiment,
+    jsonlite,
+    alabaster.sce
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown,
+    BiocStyle,
+    magick,
+    png
+VignetteBuilder: knitr
+RoxygenNote: 7.2.1
