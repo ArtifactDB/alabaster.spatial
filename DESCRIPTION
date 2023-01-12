@@ -5,8 +5,8 @@ Description:
     This is a more portable alternative to serialization of such objects into RDS files.
     Each artifact is associated with metadata for further interpretation;
     downstream applications can enrich this metadata with context-specific properties.
-Version: 0.98.0
-Date: 2022-09-18
+Version: 0.99.0
+Date: 2022-01-12
 License: MIT + file LICENSE
 Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com")
 Depends:
@@ -29,3 +29,6 @@ Suggests:
     png
 VignetteBuilder: knitr
 RoxygenNote: 7.2.1
+biocViews:
+    DataImport,
+    DataRepresentation
