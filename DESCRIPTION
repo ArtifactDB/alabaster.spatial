@@ -5,10 +5,10 @@ Description:
     This is a more portable alternative to serialization of such objects into RDS files.
     Each artifact is associated with metadata for further interpretation;
     downstream applications can enrich this metadata with context-specific properties.
-Version: 0.99.0
-Date: 2022-01-12
+Version: 0.99.1
+Date: 2022-01-31
 License: MIT + file LICENSE
-Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com")
+Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="infinite.monkeys.with.keyboards@gmail.com")
 Depends:
     SpatialExperiment,
     alabaster.base
