@@ -9,8 +9,7 @@ loadSpatialImage(img.info, project)
 \arguments{
 \item{img.info}{Named list containing the metadata for this assay.}
 
-\item{project}{Any argument accepted by the acquisition functions, see \code{?\link[artificer.base]{acquireFile}}.
-By default, this should be a string containing the path to a staging directory.}
+\item{project}{Object specifying the project of interest.}
 }
 \value{
 A \linkS4class{SpatialImage} containing the image data (or a reference to it).

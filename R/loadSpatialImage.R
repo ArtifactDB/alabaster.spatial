@@ -3,7 +3,7 @@
 #' Load an image as a \linkS4class{SpatialImage} or subclass thereof.
 #'
 #' @param img.info Named list containing the metadata for this assay.
-#' @inheritParams alabaster.base::loadObject
+#' @param project Object specifying the project of interest.
 #'
 #' @return A \linkS4class{SpatialImage} containing the image data (or a reference to it).
 #' 

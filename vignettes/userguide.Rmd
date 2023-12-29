@@ -1,15 +1,12 @@
 ---
 title: Save/load spatial omics data to/from file
-author:
-- name: Aaron Lun
-  email: luna@gene.com
-  affiliation: Data Science and Statistical Computing 
+author: Aaron Lun
 package: alabaster.spatial 
-date: "Revised: September 21, 2022"
+date: "Revised: December 29, 2023"
 output:
   BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Spatial data in DataSetDB}
+  %\VignetteIndexEntry{Saving spatial experiments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,14 +14,14 @@ vignette: >
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE)
 library(BiocStyle)
-self <- Githubpkg("ArtifactDB/alabaster.spatial")
+self <- Biocpkg("alabaster.spatial")
 ```
 
 # Overview
 
 The `SpatialExperiment` class (from the `r Biocpkg("SpatialExperiment")` package) provides a representation of spatial transcriptomics data that is compatible with Bioconductor's `SummarizedExperiment` ecosystem.
 The `r self` package contains methods to save and load `SpatialExperiment` objects into and out of file. 
-Check out the `r Githubpkg("ArtifactDB/alabaster.base")` for more details on the motivation and concepts of the **alabaster** framework.
+Check out the `r Biocpkg("alabaster.base")` for more details on the motivation and concepts of the **alabaster** framework.
 
 # Quick start
 
@@ -40,27 +37,21 @@ colnames(spe) <- make.unique(colnames(spe))
 spe
 ```
 
-We call the usual `stageObject()` function to save its contents to file:
+We call the usual `saveObject()` function to save its contents to file:
 
 ```{r}
 library(alabaster.spatial)
-
 tmp <- tempfile()
-dir.create(tmp, showWarnings=FALSE)
-meta <- stageObject(spe, dir=tmp, "spe", stage.only=TRUE)
-.writeMetadata(meta, tmp)
-
+saveObject(spe, tmp)
 list.files(tmp, recursive=TRUE)
 ```
 
-This goes through the usual saving process for `SingleCellExperiment`s, with an additional saving step for the image data (see the `spatial/` subdirectory).
-We can then load it back in using the `loadObject()` function:
+This goes through the usual saving process for `SingleCellExperiment`s, with an additional saving step for the spatial data (see the `coordinates/` and `images/` subdirectories).
+We can then load it back in using the `readObject()` function:
 
 ```{r}
-remeta <- acquireMetadata(tmp, "spe/experiment.json")
-roundtrip <- loadObject(remeta, tmp)
-spe2
-plot(imgRaster(getImg(spe2, "section1")))
+roundtrip <- readObject(tmp)
+plot(imgRaster(getImg(roundtrip, "section1")))
 ```
 
 More details on the metadata and on-disk layout are provided in the [schema](https://artifactdb.github.io/BiocObjectSchemas/html/spatial_experiment/v1.html).

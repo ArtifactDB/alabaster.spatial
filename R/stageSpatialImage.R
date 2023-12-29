@@ -1,9 +1,12 @@
-#' Stage images for upload to DataSetDB
+#' Stage images for upload 
 #'
-#' Stage images from a variety of sources in preparation for upload to DataSetDB.
+#' These methods are deprecated and are only documented here for back-compatibility purposes.
 #'
 #' @param x A \linkS4class{SpatialImage} object.
-#' @inheritParams alabaster.base::stageObject
+#' @param dir String containing a path to a directory.
+#' @param path String containing a relative path inside a directory.
+#' @param child Logical scalar indicating whether \code{x} is a child of another object.
+#' @param ... Further arguments, ignored.
 #'
 #' @return An image file is created at \code{file.path(dir, path)}, possibly after appending an appropriate file extension.
 #'

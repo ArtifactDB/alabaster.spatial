@@ -5,7 +5,7 @@
 \alias{stageObject,VirtualSpatialImage-method}
 \alias{stageObject,StoredSpatialImage-method}
 \alias{stageObject,RemoteSpatialImage-method}
-\title{Stage images for upload to DataSetDB}
+\title{Stage images for upload}
 \usage{
 \S4method{stageObject}{VirtualSpatialImage}(x, dir, path, child = FALSE, ...)
 
@@ -16,14 +16,13 @@
 \arguments{
 \item{x}{A \linkS4class{SpatialImage} object.}
 
-\item{dir}{String containing the path to the staging directory.}
+\item{dir}{String containing a path to a directory.}
 
-\item{path}{String containing a prefix of the relative path inside \code{dir} where \code{x} is to be saved.
-The actual path used to save \code{x} may include additional components, see Details.}
+\item{path}{String containing a relative path inside a directory.}
 
-\item{child}{Logical scalar indicating whether \code{x} is a child of a larger object.}
+\item{child}{Logical scalar indicating whether \code{x} is a child of another object.}
 
-\item{...}{Further arguments to pass to specific methods.}
+\item{...}{Further arguments, ignored.}
 }
 \value{
 An image file is created at \code{file.path(dir, path)}, possibly after appending an appropriate file extension.
@@ -39,7 +38,7 @@ This should start with the input \code{path} but can be followed by any necessar
 Other fields can be provided and will be included in the metadata, provided that they are recognized by the specified schema.
 }
 \description{
-Stage images from a variety of sources in preparation for upload to DataSetDB.
+These methods are deprecated and are only documented here for back-compatibility purposes.
 }
 \details{
 Each of the different methods will take advantage of any existing files to avoid an actual save.
