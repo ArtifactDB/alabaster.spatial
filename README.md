@@ -1,17 +1,17 @@
 # Save `SpatialExperiment`s to file
 
+|Environment|Status|
+|---|---|
+|[BioC-release](https://bioconductor.org/packages/release/bioc/html/alabaster.spatial.html)|[![Release OK](https://bioconductor.org/shields/build/release/bioc/alabaster.spatial.svg)](http://bioconductor.org/checkResults/release/bioc-LATEST/alabaster.spatial/)|
+|[BioC-devel](https://bioconductor.org/packages/devel/bioc/html/alabaster.spatial.html)|[![Devel OK](https://bioconductor.org/shields/build/devel/bioc/alabaster.spatial.svg)](http://bioconductor.org/checkResults/devel/bioc-LATEST/alabaster.spatial/)|
+
 The **alabaster.spatial** package implements methods for saving and loading `SpatialExperiment` objects under the **alabaster** framework.
-It provides a language-agnostic method for serializing experimental data and annotations in these objects, including the genomic coordinates in a `RangedSpatialExperiment`.
-To get started, install the package and its dependencies from GitHub:
+This includes the spatial coordinates and images associated with each sample.
+To get started, install the package and its dependencies from [Bioconductor](https://bioconductor.org/packages/alabaster.spatial):
 
 ```r
-devtools::install_github("ArtifactDB/alabaster.schemas")
-devtools::install_github("ArtifactDB/alabaster.base")
-devtools::install_github("ArtifactDB/alabaster.ranges")
-devtools::install_github("ArtifactDB/alabaster.matrix")
-devtools::install_github("ArtifactDB/alabaster.se")
-devtools::install_github("ArtifactDB/alabaster.sce")
-devtools::install_github("ArtifactDB/alabaster.spatial")
+# install.packages("BiocManager")
+BiocManager::install("alabaster.spatial")
 ```
 
 In the example below, we save a `SpatialExperiment` object to file:
@@ -38,12 +38,9 @@ spe
 
 library(alabaster.spatial)
 tmp <- tempfile()
-dir.create(tmp)
-meta <- stageObject(spe, tmp, "spe")
-meta[["$schema"]]
-## [1] "spatial_experiment/v1.json"
+saveObject(spe, tmp)
 
-roundtrip <- loadObject(meta, tmp)
+roundtrip <- readObject(tmp)
 class(roundtrip)
 ## [1] "SpatialExperiment"
 ## attr(,"package")
