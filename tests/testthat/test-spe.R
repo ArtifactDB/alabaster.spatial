@@ -52,6 +52,17 @@ test_that("saving and reading works in the new world", {
     expect_identical(imgRaster(dat1[[2]]), imgRaster(dat2[[2]]))
 })
 
+test_that("saving and reading respects SCE fields", {
+    tmp <- tempfile()
+    reducedDim(spe, "TSNE") <- matrix(runif(ncol(spe) * 2), ncol=2)
+    altExp(spe, "ERCC", withDimnames=FALSE) <- SummarizedExperiment(list(counts=matrix(rpois(10 * ncol(spe), lambda=1), ncol=ncol(spe))))
+    saveObject(spe, tmp)
+
+    spe2 <- readObject(tmp)
+    expect_identical(reducedDim(spe, "TSNE"), as.matrix(reducedDim(spe2, "TSNE")))
+    expect_identical(altExpNames(spe), "ERCC")
+})
+
 test_that("saving and reading works with fully loaded images", {
     copy <- spe
     imgData(copy)$data <- lapply(imgData(copy)$data, function(x) as(x, "LoadedSpatialImage"))
