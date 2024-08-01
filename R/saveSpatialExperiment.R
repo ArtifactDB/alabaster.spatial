@@ -62,6 +62,12 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
     for (i in seq_along(actual.images)) {
         cur.img <- actual.images[[i]]
 
+        meth <- selectMethod("saveObject", class(cur.img), optional=TRUE)
+        if (!is.null(meth)) {
+            meth(cur.img, file.path(img.dir, i - 1L), ...)
+            next
+        }
+
         format <- NULL
         if (is(cur.img, "StoredSpatialImage")) {
             format <- save_image(imgSource(cur.img), img.dir, i)
