@@ -61,29 +61,29 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
     formats <- character(length(actual.images))
     for (i in seq_along(actual.images)) {
         cur.img <- actual.images[[i]]
+        format <- NULL
 
         meth <- selectMethod("saveObject", class(cur.img), optional=TRUE)
         if (!is.null(meth)) {
             meth(cur.img, file.path(img.dir, i - 1L), ...)
-            next
-        }
+            format <- "OTHER"
+        } else {
+            if (is(cur.img, "StoredSpatialImage")) {
+                format <- save_image(imgSource(cur.img), img.dir, i)
+            } else if (is(cur.img, "RemoteSpatialImage")) {
+                format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i)
+            }
 
-        format <- NULL
-        if (is(cur.img, "StoredSpatialImage")) {
-            format <- save_image(imgSource(cur.img), img.dir, i)
-        } else if (is(cur.img, "RemoteSpatialImage")) {
-            format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i)
-        }
-
-        if (is.null(format)) {
-            ras <- imgRaster(x)
-            Y <- col2rgb(as.matrix(ras))
-            Y <- t(Y)
-            Y <- Y / 255
-            dim(Y) <- c(dim(ras), ncol(Y)) 
-            dest <- file.path(img.dir, paste0(i-1L, ".png"))
-            png::writePNG(Y, target=dest)
-            format <- "PNG"
+            if (is.null(format)) {
+                ras <- imgRaster(x)
+                Y <- col2rgb(as.matrix(ras))
+                Y <- t(Y)
+                Y <- Y / 255
+                dim(Y) <- c(dim(ras), ncol(Y)) 
+                dest <- file.path(img.dir, paste0(i-1L, ".png"))
+                png::writePNG(Y, target=dest)
+                format <- "PNG"
+            }
         }
 
         formats[i] <- format
