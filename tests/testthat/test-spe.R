@@ -76,3 +76,40 @@ test_that("saving and reading works with fully loaded images", {
     expect_identical(imgRaster(dat1[[1]]), imgRaster(dat2[[1]]))
     expect_identical(imgRaster(dat1[[2]]), imgRaster(dat2[[2]]))
 })
+
+setClass("TestSpatialImage", contains="LoadedSpatialImage")
+
+setMethod("saveObject", "TestSpatialImage", function(x, path, ...) {
+    dir.create(path)
+    saveObjectFile(path, "test_image") 
+    ras <- imgRaster(x)
+    Y <- col2rgb(as.matrix(ras))
+    Y <- t(Y)
+    Y <- Y / 255
+    dim(Y) <- c(dim(ras), ncol(Y)) 
+    dest <- file.path(path, "image.png")
+    png::writePNG(Y, target=dest)
+})
+
+test_that("saving and reading works with custom image classes", {
+    copy <- spe
+    imgData(copy)$data <- lapply(imgData(copy)$data, function(x) as(as(x, "LoadedSpatialImage"), "TestSpatialImage"))
+
+    registerValidateObjectFunction("test_image", function(path, metadata, ...) {})
+    on.exit(registerValidateObjectFunction("test_image", NULL), add=TRUE, after=FALSE)
+    registerValidateObjectSatisfiesInterface("test_image", "IMAGE")
+    on.exit(registerValidateObjectSatisfiesInterface("test_image", "IMAGE", action="remove"))
+    registerReadObjectFunction("test_image", function(path, metadata, ...) as(as(SpatialImage(file.path(path, "image.png")), "LoadedSpatialImage"), "TestSpatialImage"))
+    on.exit(registerReadObjectFunction("test_image", NULL), add=TRUE, after=FALSE)
+
+    tmp <- tempfile()
+    saveObject(copy, tmp)
+    spe2 <- readObject(tmp)
+
+    dat1 <- imgData(spe)[,"data"]
+    dat2 <- imgData(spe2)[,"data"]
+    expect_s4_class(dat2[[1]], "TestSpatialImage")
+    expect_s4_class(dat2[[2]], "TestSpatialImage")
+    expect_identical(imgRaster(dat1[[1]]), imgRaster(dat2[[1]]))
+    expect_identical(imgRaster(dat1[[2]]), imgRaster(dat2[[2]]))
+})

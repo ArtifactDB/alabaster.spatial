@@ -55,15 +55,19 @@ readSpatialExperiment <- function(path, metadata, ...) {
     imgs <- vector("list", nrow(img.df)) 
     for (i in seq_along(imgs)) {
         cur.format <- all.formats[i]
-        if (cur.format == "PNG") {
-            suffix <- "png"
-        } else if (cur.format == "TIFF") {
-            suffix <- "tif"
+        if (cur.format == "OTHER") {
+            imgs[[i]] <- altReadObject(file.path(img.dir, i - 1L), ...)
         } else {
-            stop("unknown format '", cur.format, "'")
+            if (cur.format == "PNG") {
+                suffix <- "png"
+            } else if (cur.format == "TIFF") {
+                suffix <- "tif"
+            } else {
+                stop("unknown format '", cur.format, "'")
+            }
+            target <- file.path(img.dir, paste0(i - 1L, ".", suffix))
+            imgs[[i]] <- SpatialImage(target, is.url=FALSE)
         }
-        target <- file.path(img.dir, paste0(i - 1L, ".", suffix))
-        imgs[[i]] <- SpatialImage(target, is.url=FALSE)
     }
     img.df$data <- imgs
 

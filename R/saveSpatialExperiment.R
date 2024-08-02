@@ -92,7 +92,7 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
     h5_write_vector(ghandle, "image_formats", formats)
 
     meta <- readObjectFile(path)
-    meta$spatial_experiment <- list(version="1.0")
+    meta$spatial_experiment <- list(version="1.1")
     saveObjectFile(path, "spatial_experiment", meta)
 
     invisible(NULL)
