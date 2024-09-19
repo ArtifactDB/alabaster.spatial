@@ -61,23 +61,29 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
     formats <- character(length(actual.images))
     for (i in seq_along(actual.images)) {
         cur.img <- actual.images[[i]]
-
         format <- NULL
-        if (is(cur.img, "StoredSpatialImage")) {
-            format <- save_image(imgSource(cur.img), img.dir, i)
-        } else if (is(cur.img, "RemoteSpatialImage")) {
-            format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i)
-        }
 
-        if (is.null(format)) {
-            ras <- imgRaster(x)
-            Y <- col2rgb(as.matrix(ras))
-            Y <- t(Y)
-            Y <- Y / 255
-            dim(Y) <- c(dim(ras), ncol(Y)) 
-            dest <- file.path(img.dir, paste0(i-1L, ".png"))
-            png::writePNG(Y, target=dest)
-            format <- "PNG"
+        meth <- selectMethod("saveObject", class(cur.img), optional=TRUE)
+        if (!is.null(meth)) {
+            meth(cur.img, file.path(img.dir, i - 1L), ...)
+            format <- "OTHER"
+        } else {
+            if (is(cur.img, "StoredSpatialImage")) {
+                format <- save_image(imgSource(cur.img), img.dir, i)
+            } else if (is(cur.img, "RemoteSpatialImage")) {
+                format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i)
+            }
+
+            if (is.null(format)) {
+                ras <- imgRaster(x)
+                Y <- col2rgb(as.matrix(ras))
+                Y <- t(Y)
+                Y <- Y / 255
+                dim(Y) <- c(dim(ras), ncol(Y)) 
+                dest <- file.path(img.dir, paste0(i-1L, ".png"))
+                png::writePNG(Y, target=dest)
+                format <- "PNG"
+            }
         }
 
         formats[i] <- format
@@ -86,7 +92,7 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
     h5_write_vector(ghandle, "image_formats", formats)
 
     meta <- readObjectFile(path)
-    meta$spatial_experiment <- list(version="1.0")
+    meta$spatial_experiment <- list(version="1.1")
     saveObjectFile(path, "spatial_experiment", meta)
 
     invisible(NULL)
