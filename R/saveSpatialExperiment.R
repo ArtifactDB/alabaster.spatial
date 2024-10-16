@@ -30,8 +30,7 @@
 #' @import SpatialExperiment alabaster.base methods rhdf5
 #' @importMethodsFrom alabaster.sce saveObject
 setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
-    base <- as(x, "SingleCellExperiment")
-    altSaveObject(base, path, ...)
+    callNextMethod() # see comments in saveObject,RangedSummarizedExperiment-method in alabaster.se.
 
     coord.path <- file.path(path, "coordinates")
     saveObject(spatialCoords(x), coord.path, ...)
