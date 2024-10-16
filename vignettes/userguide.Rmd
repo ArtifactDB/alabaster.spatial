@@ -29,10 +29,20 @@ To demonstrate, we'll use the example dataset provided in the `r Biocpkg("Spatia
 
 ```{r}
 library(SpatialExperiment)
-example(read10xVisium, echo=FALSE)
 
-# Making the column names unique.
-colnames(spe) <- make.unique(colnames(spe))
+# Copying the example from ?read10xVisium.
+dir <- system.file("extdata", "10xVisium", package = "SpatialExperiment")
+sample_ids <- c("section1", "section2")
+samples <- file.path(dir, sample_ids, "outs")
+spe <- read10xVisium(
+   samples,
+   sample_ids,
+   type = "sparse",
+   data = "raw",
+   images = "lowres", 
+   load = FALSE
+)
+colnames(spe) <- make.unique(colnames(spe)) # Making the column names unique.
 
 spe
 ```
