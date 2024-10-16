@@ -8,7 +8,7 @@
 readSpatialExperiment(path, metadata, ...)
 }
 \arguments{
-\item{path}{String containing a path to a directory, itself created using the \code{\link{stageObject}} method for \linkS4class{SpatialExperiment} objects.}
+\item{path}{String containing a path to a directory, itself created using the \code{\link{saveObject}} method for \linkS4class{SpatialExperiment} objects.}
 
 \item{metadata}{Named list of metadata for this object, see \code{\link{readObjectFile}} for details.}
 
@@ -28,6 +28,9 @@ tmp <- tempfile()
 saveObject(spe, tmp)
 readObject(tmp)
 
+}
+\seealso{
+\code{"\link{saveObject,SpatialExperiment-method}"}, to save a SpatialExperiment to disk.
 }
 \author{
 Aaron Lun
