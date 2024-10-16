@@ -26,9 +26,9 @@
 #' @aliases loadSpatialExperiment
 #' @importFrom S4Vectors DataFrame I
 #' @import SpatialExperiment alabaster.base rhdf5
+#' @importFrom alabaster.sce readSingleCellExperiment
 readSpatialExperiment <- function(path, metadata, ...) {
-    metadata$type <- "single_cell_experiment"
-    sce <- altReadObject(path, metadata, ...)
+    sce <- readSingleCellExperiment(path, metadata, ...) # see comments in readRangedSummarizedExperiment in alabaster.se.
 
     coord.data <- altReadObject(file.path(path, "coordinates"), ...)
     coords <- as.matrix(coord.data)
