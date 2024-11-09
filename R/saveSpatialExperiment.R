@@ -36,62 +36,64 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
     saveObject(spatialCoords(x), coord.path, ...)
 
     images <- imgData(x)
-    img.dir <- file.path(path, "images")
-    dir.create(img.dir)
+    if (nrow(images) > 0L) {
+        img.dir <- file.path(path, "images")
+        dir.create(img.dir)
 
-    fhandle <- H5Fcreate(file.path(img.dir, "mapping.h5"))
-    on.exit(H5Fclose(fhandle))
-    ghandle <- H5Gcreate(fhandle, "spatial_experiment")
-    on.exit(H5Gclose(ghandle), add=TRUE, after=FALSE)
+        fhandle <- H5Fcreate(file.path(img.dir, "mapping.h5"))
+        on.exit(H5Fclose(fhandle))
+        ghandle <- H5Gcreate(fhandle, "spatial_experiment")
+        on.exit(H5Gclose(ghandle), add=TRUE, after=FALSE)
 
-    sample.names <- unique(images$sample_id)
-    h5_write_vector(ghandle, "sample_names", sample.names)
+        sample.names <- unique(images$sample_id)
+        h5_write_vector(ghandle, "sample_names", sample.names)
 
-    column.samples <- match(x$sample_id, sample.names) - 1L
-    h5_write_vector(ghandle, "column_samples", column.samples, type="H5T_NATIVE_UINT32")
+        column.samples <- match(x$sample_id, sample.names) - 1L
+        h5_write_vector(ghandle, "column_samples", column.samples, type="H5T_NATIVE_UINT32")
 
-    image.samples <- match(images$sample_id, sample.names) - 1L
-    h5_write_vector(ghandle, "image_samples", image.samples, type="H5T_NATIVE_UINT32")
+        image.samples <- match(images$sample_id, sample.names) - 1L
+        h5_write_vector(ghandle, "image_samples", image.samples, type="H5T_NATIVE_UINT32")
 
-    h5_write_vector(ghandle, "image_ids", images$image_id)
-    h5_write_vector(ghandle, "image_scale_factors", images$scaleFactor, type="H5T_NATIVE_DOUBLE")
+        h5_write_vector(ghandle, "image_ids", images$image_id)
+        h5_write_vector(ghandle, "image_scale_factors", images$scaleFactor, type="H5T_NATIVE_DOUBLE")
 
-    actual.images <- images$data
-    formats <- character(length(actual.images))
-    for (i in seq_along(actual.images)) {
-        cur.img <- actual.images[[i]]
-        format <- NULL
+        actual.images <- images$data
+        formats <- character(length(actual.images))
+        for (i in seq_along(actual.images)) {
+            cur.img <- actual.images[[i]]
+            format <- NULL
 
-        meth <- selectMethod("saveObject", class(cur.img), optional=TRUE)
-        if (!is.null(meth)) {
-            meth(cur.img, file.path(img.dir, i - 1L), ...)
-            format <- "OTHER"
-        } else {
-            if (is(cur.img, "StoredSpatialImage")) {
-                format <- save_image(imgSource(cur.img), img.dir, i)
-            } else if (is(cur.img, "RemoteSpatialImage")) {
-                format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i)
+            meth <- selectMethod("saveObject", class(cur.img), optional=TRUE)
+            if (!is.null(meth)) {
+                meth(cur.img, file.path(img.dir, i - 1L), ...)
+                format <- "OTHER"
+            } else {
+                if (is(cur.img, "StoredSpatialImage")) {
+                    format <- save_image(imgSource(cur.img), img.dir, i)
+                } else if (is(cur.img, "RemoteSpatialImage")) {
+                    format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i)
+                }
+
+                if (is.null(format)) {
+                    ras <- imgRaster(x)
+                    Y <- col2rgb(as.matrix(ras))
+                    Y <- t(Y)
+                    Y <- Y / 255
+                    dim(Y) <- c(dim(ras), ncol(Y)) 
+                    dest <- file.path(img.dir, paste0(i-1L, ".png"))
+                    png::writePNG(Y, target=dest)
+                    format <- "PNG"
+                }
             }
 
-            if (is.null(format)) {
-                ras <- imgRaster(x)
-                Y <- col2rgb(as.matrix(ras))
-                Y <- t(Y)
-                Y <- Y / 255
-                dim(Y) <- c(dim(ras), ncol(Y)) 
-                dest <- file.path(img.dir, paste0(i-1L, ".png"))
-                png::writePNG(Y, target=dest)
-                format <- "PNG"
-            }
+            formats[i] <- format
         }
 
-        formats[i] <- format
+        h5_write_vector(ghandle, "image_formats", formats)
     }
 
-    h5_write_vector(ghandle, "image_formats", formats)
-
     meta <- readObjectFile(path)
-    meta$spatial_experiment <- list(version="1.1")
+    meta$spatial_experiment <- list(version="1.2")
     saveObjectFile(path, "spatial_experiment", meta)
 
     invisible(NULL)

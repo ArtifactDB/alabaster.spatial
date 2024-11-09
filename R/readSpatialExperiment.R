@@ -34,42 +34,52 @@ readSpatialExperiment <- function(path, metadata, ...) {
     coords <- as.matrix(coord.data)
 
     img.dir <- file.path(path, "images")
-    fhandle <- H5Fopen(file.path(img.dir, "mapping.h5"))
-    on.exit(H5Fclose(fhandle))
-    ghandle <- H5Gopen(fhandle, "spatial_experiment")
-    on.exit(H5Gclose(ghandle), add=TRUE, after=FALSE)
+    if (file.exists(img.dir)) {
+        fhandle <- H5Fopen(file.path(img.dir, "mapping.h5"))
+        on.exit(H5Fclose(fhandle))
+        ghandle <- H5Gopen(fhandle, "spatial_experiment")
+        on.exit(H5Gclose(ghandle), add=TRUE, after=FALSE)
 
-    sample.names <- h5_read_vector(ghandle, "sample_names")
-    column.samples <- h5_read_vector(ghandle, "column_samples")
-    sce$sample_id <- sample.names[column.samples + 1L] # just to be sure.
+        sample.names <- h5_read_vector(ghandle, "sample_names")
+        column.samples <- h5_read_vector(ghandle, "column_samples")
+        sce$sample_id <- sample.names[column.samples + 1L] # just to be sure.
 
-    image.samples <- h5_read_vector(ghandle, "image_samples")
-    img.df <- DataFrame(
-        sample_id=sample.names[image.samples + 1L],
-        image_id=h5_read_vector(ghandle, "image_ids"),
-        data=logical(length(image.samples)),
-        scaleFactor=h5_read_vector(ghandle, "image_scale_factors")
-    )
+        image.samples <- h5_read_vector(ghandle, "image_samples")
+        img.df <- DataFrame(
+            sample_id=sample.names[image.samples + 1L],
+            image_id=h5_read_vector(ghandle, "image_ids"),
+            data=logical(length(image.samples)),
+            scaleFactor=h5_read_vector(ghandle, "image_scale_factors")
+        )
 
-    all.formats <- h5_read_vector(ghandle, "image_formats")
-    imgs <- vector("list", nrow(img.df)) 
-    for (i in seq_along(imgs)) {
-        cur.format <- all.formats[i]
-        if (cur.format == "OTHER") {
-            imgs[[i]] <- altReadObject(file.path(img.dir, i - 1L), ...)
-        } else {
-            if (cur.format == "PNG") {
-                suffix <- "png"
-            } else if (cur.format == "TIFF") {
-                suffix <- "tif"
+        all.formats <- h5_read_vector(ghandle, "image_formats")
+        imgs <- vector("list", nrow(img.df)) 
+        for (i in seq_along(imgs)) {
+            cur.format <- all.formats[i]
+            if (cur.format == "OTHER") {
+                imgs[[i]] <- altReadObject(file.path(img.dir, i - 1L), ...)
             } else {
-                stop("unknown format '", cur.format, "'")
+                if (cur.format == "PNG") {
+                    suffix <- "png"
+                } else if (cur.format == "TIFF") {
+                    suffix <- "tif"
+                } else {
+                    stop("unknown format '", cur.format, "'")
+                }
+                target <- file.path(img.dir, paste0(i - 1L, ".", suffix))
+                imgs[[i]] <- SpatialImage(target, is.url=FALSE)
             }
-            target <- file.path(img.dir, paste0(i - 1L, ".", suffix))
-            imgs[[i]] <- SpatialImage(target, is.url=FALSE)
         }
+        img.df$data <- imgs
+
+    } else {
+        img.df <- DataFrame(
+            sample_id=character(0),
+            image_id=character(0),
+            data=I(list()),
+            scaleFactor=numeric(0)
+        )
     }
-    img.df$data <- imgs
 
     toSpatialExperiment(sce, spatialCoords = coords, imgData = img.df)
 }

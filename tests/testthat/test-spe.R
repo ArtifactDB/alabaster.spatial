@@ -113,3 +113,19 @@ test_that("saving and reading works with custom image classes", {
     expect_identical(imgRaster(dat1[[1]]), imgRaster(dat2[[1]]))
     expect_identical(imgRaster(dat1[[2]]), imgRaster(dat2[[2]]))
 })
+
+test_that("saving and reading works with no images", {
+    copy <- spe
+    img.df <- imgData(copy)
+    for (x in seq_len(nrow(img.df))) {
+        copy <- rmvImg(copy, sample_id = img.df$sample_id[x], image_id = img.df$image_df[x])
+    }
+    expect_identical(nrow(imgData(copy)), 0L)
+
+    tmp <- tempfile()
+    saveObject(copy, tmp)
+
+    spe2 <- readObject(tmp)
+    expect_identical(spatialCoords(copy), spatialCoords(spe2))
+    expect_identical(imgData(copy), imgData(spe2)) 
+})
