@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="infinite.monkeys.with.keyboards@gmail.com")
 Depends:
     SpatialExperiment,
-    alabaster.base
+    alabaster.base (>= 1.7.1)
 Imports:
     methods,
     utils,
