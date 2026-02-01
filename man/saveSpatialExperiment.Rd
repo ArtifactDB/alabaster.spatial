@@ -5,14 +5,18 @@
 \alias{stageObject,SpatialExperiment-method}
 \title{Save a spatial experiment}
 \usage{
-\S4method{saveObject}{SpatialExperiment}(x, path, ...)
+\S4method{saveObject}{SpatialExperiment}(x, path, SpatialExperiment.reuse.images = "link", ...)
 }
 \arguments{
 \item{x}{A \linkS4class{SpatialExperiment} object.}
 
 \item{path}{String containing the path to a directory in which to save \code{x}.}
 
-\item{...}{Additional named arguments to pass to specific methods.}
+\item{SpatialExperiment.reuse.images}{Whether to re-use existing files on disk (e.g., by copying or linking to them in \code{path})
+when an image in \code{\link[SpatialExperiment]{imgData}(x)} contains a reference to its original file location (e.g., via \code{\link[SpatialExperiemnt]{imgSource}}).
+This can be any of the values described for \code{action=} in \code{\link[alabaster.base]{cloneFile}}.}
+
+\item{...}{Further arguments to pass to internal \code{\link{saveObject}} calls.}
 }
 \value{
 \code{x} is saved to \code{path} and \code{NULL} is invisibly returned.

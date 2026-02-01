@@ -4,6 +4,10 @@
 #'
 #' @param x A \linkS4class{SpatialExperiment} object.
 #' @inheritParams alabaster.base::saveObject
+#' @param SpatialExperiment.reuse.images Whether to re-use existing files on disk (e.g., by copying or linking to them in \code{path})
+#' when an image in \code{\link[SpatialExperiment]{imgData}(x)} contains a reference to its original file location (e.g., via \code{\link[SpatialExperiemnt]{imgSource}}).
+#' This can be any of the values described for \code{action=} in \code{\link[alabaster.base]{cloneFile}}.
+#' @param ... Further arguments to pass to internal \code{\link{saveObject}} calls.
 #' 
 #' @author Aaron Lun
 #'
@@ -29,7 +33,7 @@
 #' @aliases stageObject,SpatialExperiment-method
 #' @import SpatialExperiment alabaster.base methods rhdf5
 #' @importMethodsFrom alabaster.sce saveObject
-setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
+setMethod("saveObject", "SpatialExperiment", function(x, path, SpatialExperiment.reuse.images="link", ...) {
     callNextMethod() # see comments in saveObject,RangedSummarizedExperiment-method in alabaster.se.
 
     coord.path <- file.path(path, "coordinates")
@@ -69,9 +73,9 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
                 format <- "OTHER"
             } else {
                 if (is(cur.img, "StoredSpatialImage")) {
-                    format <- save_image(imgSource(cur.img), img.dir, i)
+                    format <- save_image(imgSource(cur.img), img.dir, i, action=SpatialExperiment.reuse.images)
                 } else if (is(cur.img, "RemoteSpatialImage")) {
-                    format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i)
+                    format <- save_image(imgSource(cur.img, path=TRUE), img.dir, i, action=SpatialExperiment.reuse.images)
                 }
 
                 if (is.null(format)) {
@@ -99,7 +103,8 @@ setMethod("saveObject", "SpatialExperiment", function(x, path, ...) {
     invisible(NULL)
 })
 
-save_image <- function(src, dir, i) {
+#' @importFrom alabaster.base cloneFile
+save_image <- function(src, dir, i, action) {
     handle <- magick::image_read(src)
     details <- magick::image_info(handle)
     format <- details$format
@@ -115,9 +120,7 @@ save_image <- function(src, dir, i) {
     }
 
     dest <- file.path(dir, paste0(i-1L, ".", suffix))
-    if (!file.link(src, dest) && !file.copy(src, dest)) {
-        stop("failed to copy from '", src, "' to '", dest, "'")
-    }
+    cloneFile(src, dest, action=action)
 
     format
 }
